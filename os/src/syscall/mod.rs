@@ -26,8 +26,20 @@ mod process;
 
 use fs::*;
 use process::*;
+use crate::config::MAX_SYSCALL_NUM;
+use crate::config::MAX_APP_NUM;
+use crate::task::get_current_task;
+
+///
+pub static mut APP_SYSCALL_TIMES: [[u32; MAX_SYSCALL_NUM]; MAX_APP_NUM] = [[0; MAX_SYSCALL_NUM]; MAX_APP_NUM];
+
+
 /// handle syscall exception with `syscall_id` and other arguments
 pub fn syscall(syscall_id: usize, args: [usize; 3]) -> isize {
+    //syscall_times(syscall_id);
+    unsafe {
+        APP_SYSCALL_TIMES[get_current_task()][syscall_id] += 1;
+    }
     match syscall_id {
         SYSCALL_WRITE => sys_write(args[0], args[1] as *const u8, args[2]),
         SYSCALL_EXIT => sys_exit(args[0] as i32),

@@ -17,11 +17,13 @@ mod task;
 use crate::config::MAX_APP_NUM;
 use crate::loader::{get_num_app, init_app_cx};
 use crate::sync::UPSafeCell;
+use crate::timer::get_time_ms;
 use lazy_static::*;
 use switch::__switch;
 pub use task::{TaskControlBlock, TaskStatus};
 
 pub use context::TaskContext;
+
 
 /// The task manager, where all the tasks are managed.
 ///
@@ -35,7 +37,7 @@ pub use context::TaskContext;
 pub struct TaskManager {
     /// total number of tasks
     num_app: usize,
-    /// use inner value to get mutable access
+    ///MAX_APP_NUM use inner value to get mutable access
     inner: UPSafeCell<TaskManagerInner>,
 }
 
@@ -46,6 +48,14 @@ pub struct TaskManagerInner {
     /// id of current `Running` task
     current_task: usize,
 }
+/*
+///
+pub static mut APP_TIME_ARRAY: [usize; MAX_APP_NUM] = [0; MAX_APP_NUM];
+///
+pub static mut APP_TIME_FLAG: [bool; MAX_APP_NUM] = [false; MAX_APP_NUM];  
+ */
+///
+pub static mut APP_TIME :usize = 0;
 
 lazy_static! {
     /// Global variable: TASK_MANAGER
@@ -82,6 +92,13 @@ impl TaskManager {
         task0.task_status = TaskStatus::Running;
         let next_task_cx_ptr = &task0.task_cx as *const TaskContext;
         drop(inner);
+        unsafe {
+            /* 
+            APP_TIME_ARRAY[0] = get_time_ms();
+            APP_TIME_FLAG[0] = true;
+            */
+            APP_TIME = get_time_ms();
+        }
         let mut _unused = TaskContext::zero_init();
         // before this, we should drop local variables that must be dropped manually
         unsafe {
@@ -126,6 +143,12 @@ impl TaskManager {
             let current_task_cx_ptr = &mut inner.tasks[current].task_cx as *mut TaskContext;
             let next_task_cx_ptr = &inner.tasks[next].task_cx as *const TaskContext;
             drop(inner);
+            /*  unsafe {
+                
+                APP_TIME_ARRAY[next] = get_time_ms();
+                APP_TIME_FLAG[next] = true;
+                
+            }*/
             // before this, we should drop local variables that must be dropped manually
             unsafe {
                 __switch(current_task_cx_ptr, next_task_cx_ptr);
@@ -135,8 +158,16 @@ impl TaskManager {
             panic!("All applications completed!");
         }
     }
+    fn get_current_task(&self) -> usize{
+        let inner = self.inner.exclusive_access();
+        inner.current_task
+    }
 }
 
+///
+pub fn get_current_task() -> usize{
+    TASK_MANAGER.get_current_task()
+}
 /// Run the first task in task list.
 pub fn run_first_task() {
     TASK_MANAGER.run_first_task();
