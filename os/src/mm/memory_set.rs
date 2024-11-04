@@ -49,6 +49,8 @@ impl MemorySet {
             let area_start_vpn = area.vpn_range.get_start(); // 假设 l 为起始页
             let area_end_vpn = area.vpn_range.get_end(); // 假设 r 为结束页
             // 检查是否重叠
+            //println!("area_start_vpn:{:?},area_end_vpn:{:?}",area_start_vpn,area_end_vpn);
+            //println!("start.floor():{:?},end.ceil():{:?}",start.floor(),end.ceil());
             if (start.floor() < area_end_vpn) && (end.ceil() > area_start_vpn) {
                 return true; // 存在重叠
             }
@@ -56,7 +58,13 @@ impl MemorySet {
         false // 不存在重叠
     }
 
-
+    /// Check if memory range include allocated memory
+    pub fn include_allocated(&self, start_address: VirtAddr, end_address: VirtAddr) -> bool {
+        self.areas.iter().any(|area| {
+            area.vpn_range.get_end() > start_address.floor()
+                && area.vpn_range.get_start() < end_address.ceil()
+        })
+    }
     
     /// Create a new empty `MemorySet`.
     pub fn new_bare() -> Self {

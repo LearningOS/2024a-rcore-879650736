@@ -87,7 +87,51 @@ power_7 [110000/160000]
 power_7 [120000/160000]
 power_7 [130000/160000]
 power_7 [140000/160000]
+get_time OK! 22
+current time_msec = 23
+AAAAAAAAAA [1/5]
+BBBBBBBBBB [1/5]
+CCCCCCCCCC [1/5]
+Test 04_1 OK!
+[kernel] PageFault in application, bad addr = 0x10000000, bad instruction = 0x42e, kernel killed it.
+[kernel] PageFault in application, bad addr = 0x10000000, bad instruction = 0x42c, kernel killed it.
+Test 04_4 test OK!
+Test 04_5 ummap OK!
+Test 04_6 ummap2 OK!
+Test sbrk start.
+origin break point = c000
+one page allocated,  break point = d000
+try write to allocated page
+write ok
+10 page allocated,  break point = 17000
+11 page DEALLOCATED,  break point = c000
+try DEALLOCATED more one page, should be failed.
+Test sbrk almost OK!
+now write to deallocated page, should cause page fault.
+[kernel] PageFault in application, bad addr = 0xc000, bad instruction = 0x5c0, kernel killed it.
 power_7 [150000/160000]
 power_7 [160000/160000]
 7^160000 = 667897727(MOD 998244353)
-[kernel] Panicked at src/trap/mod.rs:132 a trap Exception(StorePageFault) from kernel!
+Test power_7 OK!
+AAAAAAAAAA [2/5]
+BBBBBBBBBB [2/5]
+CCCCCCCCCC [2/5]
+AAAAAAAAAA [3/5]
+BBBBBBBBBB [3/5]
+CCCCCCCCCC [3/5]
+AAAAAAAAAA [4/5]
+BBBBBBBBBB [4/5]
+CCCCCCCCCC [4/5]
+AAAAAAAAAA [5/5]
+BBBBBBBBBB [5/5]
+CCCCCCCCCC [5/5]
+Test write A OK!
+Test write B OK!
+Test write C OK!
+time_msec = 123 after sleeping 100 ticks, delta = 100ms!
+Test sleep1 passed!
+string from task info test
+
+Test task info OK!
+Test sleep OK!
+[kernel] Panicked at src/task/mod.rs:159 All applications completed!

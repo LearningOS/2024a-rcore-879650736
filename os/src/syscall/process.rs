@@ -106,8 +106,7 @@ pub fn sys_mmap(_start: usize, _len: usize, _port: usize) -> isize {
     // 转换为 `MapPermission`
     let map_permissions = convert_sysmmap_to_map_permission(permissions);
 
-    syscall_mmap(_start,_len,map_permissions);
-    0
+    syscall_mmap(_start,_len,map_permissions)
 }
 
 /// 将 `SysMmapPermission` 转换为 `MapPermission`
@@ -139,8 +138,7 @@ pub fn sys_munmap(_start: usize, _len: usize) -> isize {
     if  !start_va.aligned() || !end_va.aligned(){
         return -1;
     }
-    syscall_munmap(_start, _len);
-    0
+    syscall_munmap(_start, _len)
 }
 /// change data segment size
 pub fn sys_sbrk(size: i32) -> isize {

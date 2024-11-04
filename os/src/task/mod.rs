@@ -16,6 +16,7 @@ mod task;
 
 use crate::loader::{get_app_data, get_num_app};
 use crate::mm::MapPermission;
+use crate::mm::VirtAddr;
 use crate::sync::UPSafeCell;
 use crate::trap::TrapContext;
 
@@ -184,11 +185,12 @@ impl TaskManager {
         let mut inner = self.inner.exclusive_access();
         let current = inner.current_task;
         let tasks = &mut inner.tasks[current];
-        let end = start + len;
-        if tasks.memory_set.overlaps_with_mapped_area(start.into(), end.into()){
+        let start_address = VirtAddr::from(start);
+        let end_address = VirtAddr::from(start + len);
+        if tasks.memory_set.overlaps_with_mapped_area(start_address, end_address){
             return -1;
         }
-        tasks.memory_set.insert_framed_area(start.into(), end.into(), permission);
+        tasks.memory_set.insert_framed_area(start_address, end_address, permission);
         0
     }
     fn syscall_munmap(&self,start:usize,len:usize) -> isize{
@@ -199,6 +201,7 @@ impl TaskManager {
         tasks.memory_set.del_framed_area(start.into(), end.into());
         0
     }
+    
 }
 
 ///
