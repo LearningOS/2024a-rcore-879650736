@@ -15,11 +15,14 @@ mod switch;
 mod task;
 
 use crate::loader::{get_app_data, get_num_app};
+use crate::mm::MapPermission;
 use crate::sync::UPSafeCell;
 use crate::trap::TrapContext;
+
 use alloc::vec::Vec;
 use lazy_static::*;
 use switch::__switch;
+use crate::config::MAX_SYSCALL_NUM;
 pub use task::{TaskControlBlock, TaskStatus};
 
 pub use context::TaskContext;
@@ -39,6 +42,8 @@ pub struct TaskManager {
     /// use inner value to get mutable access
     inner: UPSafeCell<TaskManagerInner>,
 }
+
+
 
 /// The task manager inner in 'UPSafeCell'
 struct TaskManagerInner {
@@ -153,6 +158,78 @@ impl TaskManager {
             panic!("All applications completed!");
         }
     }
+    fn get_current_task(&self) -> usize{
+        let inner = self.inner.exclusive_access();
+        inner.current_task
+    }
+    fn get_start_time(&self) -> usize{
+        let mut inner = self.inner.exclusive_access();
+        let current = inner.current_task;
+        let tasks = &mut inner.tasks[current];
+        tasks.get_start_time()
+    }
+    fn update_syscall_times(&self,id: usize){
+        let mut inner = self.inner.exclusive_access();
+        let current = inner.current_task;
+        let tasks = &mut inner.tasks[current];
+        tasks.add_syscall_times(id);
+    }
+    fn get_syscall_times(&self) -> [u32; MAX_SYSCALL_NUM]{
+        let mut inner = self.inner.exclusive_access();
+        let current = inner.current_task;
+        let tasks = &mut inner.tasks[current];
+        tasks.get_syscall_times()
+    }
+    fn syscall_mmap(&self,start:usize,len:usize,permission:MapPermission) -> isize{
+        let mut inner = self.inner.exclusive_access();
+        let current = inner.current_task;
+        let tasks = &mut inner.tasks[current];
+        let end = start + len;
+        if tasks.memory_set.overlaps_with_mapped_area(start.into(), end.into()){
+            return -1;
+        }
+        tasks.memory_set.insert_framed_area(start.into(), end.into(), permission);
+        0
+    }
+    fn syscall_munmap(&self,start:usize,len:usize) -> isize{
+        let mut inner = self.inner.exclusive_access();
+        let current = inner.current_task;
+        let tasks = &mut inner.tasks[current];
+        let end = start + len;
+        tasks.memory_set.del_framed_area(start.into(), end.into());
+        0
+    }
+}
+
+///
+pub fn syscall_munmap(start:usize,len:usize) -> isize{
+    TASK_MANAGER.syscall_munmap(start, len)
+}
+
+
+///
+pub fn syscall_mmap(start:usize,len:usize,permission:MapPermission) -> isize{
+    TASK_MANAGER.syscall_mmap(start, len, permission)
+}
+
+///
+pub fn update_syscall_times(id: usize){
+    TASK_MANAGER.update_syscall_times(id);
+}
+
+/// 
+pub fn get_syscall_times() -> [u32; MAX_SYSCALL_NUM]{
+    TASK_MANAGER.get_syscall_times()
+}
+
+///
+pub fn get_start_time() -> usize{
+    TASK_MANAGER.get_start_time()
+}
+
+///
+pub fn get_current_task() -> usize{
+    TASK_MANAGER.get_current_task()
 }
 
 /// Run the first task in task list.

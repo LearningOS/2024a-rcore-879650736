@@ -4,7 +4,9 @@ use crate::config::TRAP_CONTEXT_BASE;
 use crate::mm::{
     kernel_stack_position, MapPermission, MemorySet, PhysPageNum, VirtAddr, KERNEL_SPACE,
 };
+use crate::timer::get_time_ms;
 use crate::trap::{trap_handler, TrapContext};
+use crate::config::MAX_SYSCALL_NUM;
 
 /// The task control block (TCB) of a task.
 pub struct TaskControlBlock {
@@ -20,6 +22,9 @@ pub struct TaskControlBlock {
     /// The phys page number of trap context
     pub trap_cx_ppn: PhysPageNum,
 
+    ///
+    pub start_time: usize,
+
     /// The size(top addr) of program which is loaded from elf file
     pub base_size: usize,
 
@@ -28,6 +33,9 @@ pub struct TaskControlBlock {
 
     /// Program break
     pub program_brk: usize,
+
+    ///
+    pub task_syscall_trace: [u32; MAX_SYSCALL_NUM],
 }
 
 impl TaskControlBlock {
@@ -48,6 +56,7 @@ impl TaskControlBlock {
             .unwrap()
             .ppn();
         let task_status = TaskStatus::Ready;
+        let start_time = get_time_ms();
         // map a kernel-stack in kernel space
         let (kernel_stack_bottom, kernel_stack_top) = kernel_stack_position(app_id);
         KERNEL_SPACE.exclusive_access().insert_framed_area(
@@ -60,9 +69,11 @@ impl TaskControlBlock {
             task_cx: TaskContext::goto_trap_return(kernel_stack_top),
             memory_set,
             trap_cx_ppn,
+            start_time,
             base_size: user_sp,
             heap_bottom: user_sp,
             program_brk: user_sp,
+            task_syscall_trace: [0;MAX_SYSCALL_NUM],
         };
         // prepare TrapContext in user space
         let trap_cx = task_control_block.get_trap_cx();
@@ -95,6 +106,18 @@ impl TaskControlBlock {
         } else {
             None
         }
+    }
+    ///
+    pub fn get_start_time(&self) -> usize{
+        self.start_time
+    }
+    ///
+    pub fn add_syscall_times(&mut self,id: usize){
+        self.task_syscall_trace[id]+=1;
+    }
+    ///
+    pub fn get_syscall_times(&self) -> [u32; MAX_SYSCALL_NUM]{
+        self.task_syscall_trace
     }
 }
 

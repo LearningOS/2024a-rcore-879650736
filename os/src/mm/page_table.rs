@@ -6,18 +6,27 @@ use alloc::vec::Vec;
 use bitflags::*;
 
 bitflags! {
-    /// page table entry flags
+    /// Page table entry flags
     pub struct PTEFlags: u8 {
+        /// Valid flag
         const V = 1 << 0;
+        /// Readable flag
         const R = 1 << 1;
+        /// Writable flag
         const W = 1 << 2;
+        /// Executable flag
         const X = 1 << 3;
+        /// User flag
         const U = 1 << 4;
+        /// Global flag
         const G = 1 << 5;
+        /// Accessed flag
         const A = 1 << 6;
+        /// Dirty flag
         const D = 1 << 7;
     }
 }
+
 
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -148,6 +157,21 @@ impl PageTable {
         8usize << 60 | self.root_ppn.0
     }
 }
+
+///
+pub fn translate_to_phys_addr(token: usize,ptr: usize) -> usize{
+    let page_table = PageTable::from_token(token);
+    let virtual_address: VirtAddr = ptr.into();
+    let offset_address = virtual_address.page_offset();
+    let virt_page_num = virtual_address.floor();
+    let physical_page_num = match page_table.translate(virt_page_num) {
+        Some(pte) => pte.ppn(),
+        None => panic!("Invalid address: 0x{:x}", ptr),
+    };
+    let physical_address = physical_page_num.0 << 12 | offset_address;
+    physical_address
+}
+
 
 /// Translate&Copy a ptr[u8] array with LENGTH len to a mutable u8 Vec through page table
 pub fn translated_byte_buffer(token: usize, ptr: *const u8, len: usize) -> Vec<&'static mut [u8]> {
