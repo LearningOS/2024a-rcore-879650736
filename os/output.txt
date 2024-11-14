@@ -1,0 +1,76 @@
+(rustup target list | grep "riscv64gc-unknown-none-elf (installed)") || rustup target add riscv64gc-unknown-none-elf
+riscv64gc-unknown-none-elf (installed)
+cargo install cargo-binutils
+rustup component add rust-src
+rustup component add llvm-tools-preview
+make[1]: Entering directory '/home/ssy/rcore/2024a-rcore-879650736/user'
+target/riscv64gc-unknown-none-elf/release/ch2b_bad_address target/riscv64gc-unknown-none-elf/release/ch2b_bad_instructions target/riscv64gc-unknown-none-elf/release/ch2b_bad_register target/riscv64gc-unknown-none-elf/release/ch2b_hello_world target/riscv64gc-unknown-none-elf/release/ch2b_power_3 target/riscv64gc-unknown-none-elf/release/ch2b_power_5 target/riscv64gc-unknown-none-elf/release/ch2b_power_7 target/riscv64gc-unknown-none-elf/release/ch3b_yield0 target/riscv64gc-unknown-none-elf/release/ch3b_yield1 target/riscv64gc-unknown-none-elf/release/ch3b_yield2 target/riscv64gc-unknown-none-elf/release/ch3_sleep1 target/riscv64gc-unknown-none-elf/release/ch3_sleep target/riscv64gc-unknown-none-elf/release/ch3_taskinfo target/riscv64gc-unknown-none-elf/release/ch4b_sbrk target/riscv64gc-unknown-none-elf/release/ch4_mmap0 target/riscv64gc-unknown-none-elf/release/ch4_mmap1 target/riscv64gc-unknown-none-elf/release/ch4_mmap2 target/riscv64gc-unknown-none-elf/release/ch4_mmap3 target/riscv64gc-unknown-none-elf/release/ch4_unmap2 target/riscv64gc-unknown-none-elf/release/ch4_unmap target/riscv64gc-unknown-none-elf/release/ch5b_exit target/riscv64gc-unknown-none-elf/release/ch5b_forktest2 target/riscv64gc-unknown-none-elf/release/ch5b_forktest target/riscv64gc-unknown-none-elf/release/ch5b_forktest_simple target/riscv64gc-unknown-none-elf/release/ch5b_forktree target/riscv64gc-unknown-none-elf/release/ch5b_initproc target/riscv64gc-unknown-none-elf/release/ch5b_user_shell target/riscv64gc-unknown-none-elf/release/ch5b_usertest target/riscv64gc-unknown-none-elf/release/ch5_exit0 target/riscv64gc-unknown-none-elf/release/ch5_exit1 target/riscv64gc-unknown-none-elf/release/ch5_getpid target/riscv64gc-unknown-none-elf/release/ch5_setprio target/riscv64gc-unknown-none-elf/release/ch5_spawn0 target/riscv64gc-unknown-none-elf/release/ch5_spawn1 target/riscv64gc-unknown-none-elf/release/ch5_stride0 target/riscv64gc-unknown-none-elf/release/ch5_stride1 target/riscv64gc-unknown-none-elf/release/ch5_stride2 target/riscv64gc-unknown-none-elf/release/ch5_stride3 target/riscv64gc-unknown-none-elf/release/ch5_stride4 target/riscv64gc-unknown-none-elf/release/ch5_stride5 target/riscv64gc-unknown-none-elf/release/ch5_stride target/riscv64gc-unknown-none-elf/release/ch5_usertest
+make[1]: Leaving directory '/home/ssy/rcore/2024a-rcore-879650736/user'
+Platform: qemu
+[rustsbi] RustSBI version 0.3.0-alpha.2, adapting to RISC-V SBI v1.0.0
+.______       __    __      _______.___________.  _______..______   __
+|   _  \     |  |  |  |    /       |           | /       ||   _  \ |  |
+|  |_)  |    |  |  |  |   |   (----`---|  |----`|   (----`|  |_)  ||  |
+|      /     |  |  |  |    \   \       |  |      \   \    |   _  < |  |
+|  |\  \----.|  `--'  |.----)   |      |  |  .----)   |   |  |_)  ||  |
+| _| `._____| \______/ |_______/       |__|  |_______/    |______/ |__|
+[rustsbi] Implementation     : RustSBI-QEMU Version 0.2.0-alpha.2
+[rustsbi] Platform Name      : riscv-virtio,qemu
+[rustsbi] Platform SMP       : 1
+[rustsbi] Platform Memory    : 0x80000000..0x88000000
+[rustsbi] Boot HART          : 0
+[rustsbi] Device Tree Region : 0x87000000..0x87000ef2
+[rustsbi] Firmware Address   : 0x80000000
+[rustsbi] Supervisor Address : 0x80200000
+[rustsbi] pmp01: 0x00000000..0x80000000 (-wr)
+[rustsbi] pmp02: 0x80000000..0x80200000 (---)
+[rustsbi] pmp03: 0x80200000..0x88000000 (xwr)
+[rustsbi] pmp04: 0x88000000..0x00000000 (-wr)
+[kernel] Hello, world!
+remap_test passed!
+after initproc!
+/**** APPS ****
+ch2b_bad_address
+ch2b_bad_instructions
+ch2b_bad_register
+ch2b_hello_world
+ch2b_power_3
+ch2b_power_5
+ch2b_power_7
+ch3_sleep
+ch3_sleep1
+ch3_taskinfo
+ch3b_yield0
+ch3b_yield1
+ch3b_yield2
+ch4_mmap0
+ch4_mmap1
+ch4_mmap2
+ch4_mmap3
+ch4_unmap
+ch4_unmap2
+ch4b_sbrk
+ch5_exit0
+ch5_exit1
+ch5_getpid
+ch5_setprio
+ch5_spawn0
+ch5_spawn1
+ch5_stride
+ch5_stride0
+ch5_stride1
+ch5_stride2
+ch5_stride3
+ch5_stride4
+ch5_stride5
+ch5_usertest
+ch5b_exit
+ch5b_forktest
+ch5b_forktest2
+ch5b_forktest_simple
+ch5b_forktree
+ch5b_initproc
+ch5b_user_shell
+ch5b_usertest
+**************/
+[kernel] Panicked at src/sync/up.rs:28 already borrowed: BorrowMutError
